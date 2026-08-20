@@ -71,7 +71,7 @@ The underlying regression model is built using TensorFlow/Keras with standard de
 
 ## 📁 Repository Structure
 
-.
+```text
 ├── app.py                           # Main Streamlit web application
 ├── salary_nn_weights.weights.h5     # Serialized Keras neural network weights
 ├── preprocessor.pkl                 # Scikit-Learn preprocessing pipeline
@@ -79,8 +79,7 @@ The underlying regression model is built using TensorFlow/Keras with standard de
 ├── requirements.txt                 # Python dependency declarations
 ├── shap_explanation.png             # SHAP local feature attribution chart asset
 └── README.md                        # Technical project documentation
-.
-
+```
 ## ⚙️ Local Installation & Run
 
 1. **Clone the Repository:**
