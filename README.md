@@ -82,6 +82,7 @@ The underlying regression model is built using TensorFlow/Keras with standard de
 ```
 ## ⚙️ Local Installation & Run
 
+```text
 1. **Clone the Repository:**
    git clone https://github.com/M-Nafay-Ali/Salary-Forecasting-Keras-Explainability.git
    cd Salary-Forecasting-Keras-Explainability
@@ -95,7 +96,7 @@ The underlying regression model is built using TensorFlow/Keras with standard de
 
 4. **Launch the Streamlit App:**
    streamlit run app.py
-
+```
 ---
 
 ## 🛠️ Tech Stack
