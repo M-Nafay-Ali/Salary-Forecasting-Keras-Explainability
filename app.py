@@ -4,6 +4,7 @@ import numpy as np
 import joblib
 import json
 import keras
+from keras import layers, Sequential
 import shap
 import plotly.graph_objects as go
 import plotly.express as px
@@ -73,7 +74,19 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# 3. Safe Model and Artifact Loader
+# 3. Model Builder Function
+def build_model(input_dim):
+    model = Sequential([
+        layers.Input(shape=(input_dim,)),
+        layers.Dense(256, activation='relu'),
+        layers.Dense(128, activation='relu'),
+        layers.Dense(64, activation='relu'),
+        layers.Dense(32, activation='relu'),
+        layers.Dense(1, activation='linear')
+    ])
+    return model
+
+# 4. Artifact Loader
 @st.cache_resource
 def load_artifacts():
     try:
@@ -82,15 +95,17 @@ def load_artifacts():
         raise RuntimeError(f"Error loading preprocessor.pkl: {e}")
 
     try:
-        nn_model = keras.models.load_model('salary_nn_model.h5', compile=False)
-    except Exception as e:
-        raise RuntimeError(f"Error loading salary_nn_model.h5: {e}")
-
-    try:
         with open('feature_info.json', 'r') as f:
-            meta = json.load(f)
+            meta = json.json_load(f) if hasattr(json, 'json_load') else json.load(f)
     except Exception as e:
         raise RuntimeError(f"Error loading feature_info.json: {e}")
+
+    try:
+        input_dim = meta.get('input_dim', 174)
+        nn_model = build_model(input_dim)
+        nn_model.load_weights('salary_nn_weights.weights.h5')
+    except Exception as e:
+        raise RuntimeError(f"Error loading salary_nn_weights.weights.h5: {e}")
 
     return preprocessor, nn_model, meta
 
@@ -100,7 +115,7 @@ except Exception as e:
     st.error(f"⚠️ Deployment Artifact Error: {e}")
     st.stop()
 
-# 4. Header Section
+# 5. Header Section
 st.markdown("""
 <div class="glass-card">
     <h1 style='text-align: center; color: #FFFFFF; font-family: "Inter", sans-serif; margin-bottom: 5px;'>
@@ -112,7 +127,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# 5. Sidebar Navigation / Feature Inputs
+# 6. Sidebar Navigation / Feature Inputs
 st.sidebar.markdown("### 🎛️ Employee Profile")
 
 input_gender = st.sidebar.selectbox("Gender", meta['unique_genders'])
@@ -130,7 +145,7 @@ input_df = pd.DataFrame([{
     'Years of Experience': input_experience
 }])
 
-# 6. Main Dashboard Layout
+# 7. Main Dashboard Layout
 col1, col2 = st.columns([1, 1.2])
 
 with col1:
@@ -140,7 +155,7 @@ with col1:
     predict_btn = st.button("🚀 Predict Target Compensation")
     st.markdown('</div>', unsafe_allow_html=True)
 
-# 7. Prediction & Explainability Logic
+# 8. Prediction & Explainability Logic
 if predict_btn or 'prediction' in st.session_state:
     processed_input = preprocessor.transform(input_df)
     if hasattr(processed_input, "toarray"):
@@ -221,4 +236,4 @@ if predict_btn or 'prediction' in st.session_state:
         )
         st.plotly_chart(fig_shap, use_container_width=True)
     st.markdown('</div>', unsafe_allow_html=True)
-    
+            
