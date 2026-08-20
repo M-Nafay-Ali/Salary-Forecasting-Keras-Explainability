@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import joblib
 import json
-import tensorflow as tf
+import keras
 import shap
 import plotly.graph_objects as go
 import plotly.express as px
@@ -19,7 +19,6 @@ st.set_page_config(
 # 2. Advanced Custom CSS Styling (Glassmorphism & High-Tech Theme)
 st.markdown("""
 <style>
-    /* Background Image with Dark Overlay */
     .stApp {
         background: linear-gradient(rgba(10, 15, 30, 0.85), rgba(10, 15, 30, 0.92)), 
                     url("https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop");
@@ -29,14 +28,12 @@ st.markdown("""
         color: #E0E6ED;
     }
 
-    /* Sidebar Glassmorphism */
     section[data-testid="stSidebar"] {
         background: rgba(16, 22, 42, 0.75) !important;
         backdrop-filter: blur(12px);
         border-right: 1px solid rgba(255, 255, 255, 0.1);
     }
 
-    /* Cards & Containers */
     .glass-card {
         background: rgba(23, 32, 54, 0.65);
         backdrop-filter: blur(16px);
@@ -47,7 +44,6 @@ st.markdown("""
         margin-bottom: 20px;
     }
 
-    /* Custom Metric Styling */
     .metric-value {
         font-size: 2.8rem;
         font-weight: 800;
@@ -57,7 +53,6 @@ st.markdown("""
         margin-top: -10px;
     }
 
-    /* Custom Buttons */
     .stButton>button {
         background: linear-gradient(135deg, #00F2FE 0%, #4FACFE 100%);
         color: #0A0F1E;
@@ -78,19 +73,31 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# 3. Load Model and Artifacts
+# 3. Safe Model and Artifact Loader
 @st.cache_resource
 def load_artifacts():
-    preprocessor = joblib.load('preprocessor.pkl')
-    nn_model = tf.keras.models.load_model('salary_nn_model.keras')
-    with open('feature_info.json', 'r') as f:
-        meta = json.load(f)
+    try:
+        preprocessor = joblib.load('preprocessor.pkl')
+    except Exception as e:
+        raise RuntimeError(f"Error loading preprocessor.pkl: {e}")
+
+    try:
+        nn_model = keras.models.load_model('salary_nn_model.keras')
+    except Exception as e:
+        raise RuntimeError(f"Error loading salary_nn_model.keras: {e}")
+
+    try:
+        with open('feature_info.json', 'r') as f:
+            meta = json.load(f)
+    except Exception as e:
+        raise RuntimeError(f"Error loading feature_info.json: {e}")
+
     return preprocessor, nn_model, meta
 
 try:
     preprocessor, nn_model, meta = load_artifacts()
 except Exception as e:
-    st.error("Error loading deployment artifacts. Make sure `preprocessor.pkl`, `salary_nn_model.keras`, and `feature_info.json` exist.")
+    st.error(f"⚠️ Deployment Artifact Error: {e}")
     st.stop()
 
 # 4. Header Section
@@ -115,7 +122,6 @@ input_job = st.sidebar.selectbox("Job Title", meta['unique_job_titles'])
 input_age = st.sidebar.slider("Age", meta['min_age'], meta['max_age'], int(np.median([meta['min_age'], meta['max_age']])))
 input_experience = st.sidebar.slider("Years of Experience", float(meta['min_exp']), float(meta['max_exp']), 5.0, step=0.5)
 
-# Construct Input DataFrame
 input_df = pd.DataFrame([{
     'Age': input_age,
     'Gender': input_gender,
@@ -130,20 +136,12 @@ col1, col2 = st.columns([1, 1.2])
 with col1:
     st.markdown('<div class="glass-card">', unsafe_allow_html=True)
     st.markdown("### 📊 Inputs Summary")
-    
-    # Display Input Profile
-    st.dataframe(
-        input_df, 
-        use_container_width=True, 
-        hide_index=True
-    )
-    
+    st.dataframe(input_df, use_container_width=True, hide_index=True)
     predict_btn = st.button("🚀 Predict Target Compensation")
     st.markdown('</div>', unsafe_allow_html=True)
 
 # 7. Prediction & Explainability Logic
 if predict_btn or 'prediction' in st.session_state:
-    # Process inputs
     processed_input = preprocessor.transform(input_df)
     if hasattr(processed_input, "toarray"):
         processed_input = processed_input.toarray()
@@ -156,7 +154,6 @@ if predict_btn or 'prediction' in st.session_state:
         st.markdown("### 🎯 Predicted Annual Salary")
         st.markdown(f'<div class="metric-value">${predicted_salary:,.2f}</div>', unsafe_allow_html=True)
         
-        # Interactive Gauge Chart
         fig_gauge = go.Figure(go.Indicator(
             mode="gauge+number",
             value=predicted_salary,
@@ -187,7 +184,6 @@ if predict_btn or 'prediction' in st.session_state:
     st.markdown("### 🔍 Local Feature Attribution (SHAP Explanation)")
     
     with st.spinner("Computing real-time SHAP feature contributions..."):
-        # Dummy background sample creation for fast local explanation
         bg_sample = np.zeros((10, processed_input.shape[1]))
         explainer = shap.DeepExplainer(nn_model, bg_sample)
         shap_vals = explainer.shap_values(processed_input, check_additivity=False)
@@ -200,13 +196,11 @@ if predict_btn or 'prediction' in st.session_state:
         if len(shap_matrix.shape) == 3:
             shap_matrix = shap_matrix.squeeze(-1)
 
-        # Build Top Feature Impact DataFrame
         shap_df = pd.DataFrame({
             'Feature': meta['clean_feature_names'],
             'SHAP Impact ($)': shap_matrix[0]
         }).sort_values(by='SHAP Impact ($)', key=abs, ascending=False).head(8)
 
-        # Plotly Horizontal Bar Chart for SHAP Values
         fig_shap = px.bar(
             shap_df,
             x='SHAP Impact ($)',
@@ -227,4 +221,4 @@ if predict_btn or 'prediction' in st.session_state:
         )
         st.plotly_chart(fig_shap, use_container_width=True)
     st.markdown('</div>', unsafe_allow_html=True)
-
+    
