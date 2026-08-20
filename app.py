@@ -14,19 +14,19 @@ st.set_page_config(
     page_title="Salary Intelligence AI",
     page_icon="💼",
     layout="wide",
-    initial_sidebar_state="collapsed"
+    initial_sidebar_state="expanded"
 )
 
-# 2. Enhanced High-Contrast CSS Styling (Mobile & Mobile Browser Friendly)
+# 2. Enhanced High-Contrast CSS Styling (Mobile Browser Friendly)
 st.markdown("""
 <style>
-    /* Dark Theme Background */
+    /* Main Dark Background */
     .stApp {
         background-color: #0F172A;
         color: #F8FAFC;
     }
 
-    /* Sidebar High-Contrast Text Fix */
+    /* Sidebar High-Contrast Styling */
     section[data-testid="stSidebar"] {
         background-color: #1E293B !important;
     }
@@ -72,7 +72,7 @@ st.markdown("""
         margin-bottom: 10px;
     }
 
-    /* Action Button */
+    /* Primary Action Button */
     .stButton>button {
         background: linear-gradient(135deg, #0284C7 0%, #0369A1 100%);
         color: #FFFFFF;
@@ -134,31 +134,53 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# 6. Sidebar Inputs with Clear Labels
+# 6. Sidebar Inputs & Category Normalization
 st.sidebar.markdown("<h2 style='color: #FFFFFF;'>🎛️ Employee Profile</h2>", unsafe_allow_html=True)
 
+# Normalize/Clean Education Degree Duplicate Categories
+edu_mapping = {
+    "Bachelor's": "Bachelor's Degree",
+    "Bachelor's Degree": "Bachelor's Degree",
+    "Master's": "Master's Degree",
+    "Master's Degree": "Master's Degree",
+    "PhD": "PhD",
+    "phD": "PhD",
+    "High School": "High School"
+}
+
+raw_education = meta['unique_education']
+clean_education_list = sorted(list(set(edu_mapping.get(e, e) for e in raw_education)))
+
 input_gender = st.sidebar.selectbox("Select Gender", meta['unique_genders'])
-input_education = st.sidebar.selectbox("Select Education Level", meta['unique_education'])
+input_education_display = st.sidebar.selectbox("Select Education Level", clean_education_list)
 input_job = st.sidebar.selectbox("Select Job Title", meta['unique_job_titles'])
 
 input_age = st.sidebar.slider("Age (Years)", meta['min_age'], meta['max_age'], int(np.median([meta['min_age'], meta['max_age']])))
 input_experience = st.sidebar.slider("Experience (Years)", float(meta['min_exp']), float(meta['max_exp']), 5.0, step=0.5)
 
+# Map cleaned UI value back to model-expected value if needed
+reverse_edu_map = {v: k for k, v in edu_mapping.items()}
+model_education = reverse_edu_map.get(input_education_display, input_education_display)
+
 input_df = pd.DataFrame([{
     'Age': input_age,
     'Gender': input_gender,
-    'Education Level': input_education,
+    'Education Level': model_education,
     'Job Title': input_job,
     'Years of Experience': input_experience
 }])
 
-# 7. Dashboard Layout
+# 7. Main Dashboard Layout
 col1, col2 = st.columns([1, 1])
 
 with col1:
     st.markdown('<div class="glass-card">', unsafe_allow_html=True)
     st.markdown("### 📊 Selected Input Features")
-    st.dataframe(input_df, use_container_width=True, hide_index=True)
+    
+    display_df = input_df.copy()
+    display_df['Education Level'] = input_education_display
+    st.dataframe(display_df, use_container_width=True, hide_index=True)
+    
     predict_btn = st.button("🚀 Calculate Estimated Salary")
     st.markdown('</div>', unsafe_allow_html=True)
 
@@ -200,7 +222,7 @@ if predict_btn or 'prediction' in st.session_state:
         st.plotly_chart(fig_gauge, use_container_width=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
-    # Expanded & Responsive SHAP Feature Plot
+    # Clean & Responsive SHAP Plot
     st.markdown('<div class="glass-card">', unsafe_allow_html=True)
     st.markdown("### 🔍 Feature Importance (SHAP Breakdown)")
     
@@ -217,7 +239,7 @@ if predict_btn or 'prediction' in st.session_state:
         if len(shap_matrix.shape) == 3:
             shap_matrix = shap_matrix.squeeze(-1)
 
-        # Truncate long feature names for readability on smaller screens
+        # Truncate long feature names to keep mobile labels clean
         clean_names = [name[:25] + "..." if len(name) > 25 else name for name in meta['clean_feature_names']]
 
         shap_df = pd.DataFrame({
@@ -240,10 +262,10 @@ if predict_btn or 'prediction' in st.session_state:
             paper_bgcolor='rgba(0,0,0,0)',
             plot_bgcolor='rgba(0,0,0,0)',
             font=dict(color='#F8FAFC'),
-            height=420,  # Increased height to un-cram labels
+            height=400,
             coloraxis_showscale=False,
             margin=dict(l=10, r=20, t=10, b=10)
         )
         st.plotly_chart(fig_shap, use_container_width=True)
     st.markdown('</div>', unsafe_allow_html=True)
-    
+        
