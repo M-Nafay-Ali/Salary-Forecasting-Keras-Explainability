@@ -33,6 +33,7 @@ Machine learning models in compensation analysis often suffer from "black box" o
 
 ## 🏗️ System Architecture & Workflow
 
+```text
 ┌─────────────────────────┐
 │ User Inputs (Streamlit) │ ── (Age, Experience, Gender, Education, Job Title)
 └────────────┬────────────┘
@@ -53,8 +54,7 @@ Machine learning models in compensation analysis often suffer from "black box" o
 │ Predicted Compensation  │ │  SHAP Local Attribution │
 │   (Plotly Gauge Chart)  │ │   (DeepExplainer Chart) │
 └─────────────────────────┘ └─────────────────────────┘
-
----
+```
 
 ## 🧠 Neural Network Architecture
 
