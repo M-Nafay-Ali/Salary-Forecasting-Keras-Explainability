@@ -82,9 +82,9 @@ def load_artifacts():
         raise RuntimeError(f"Error loading preprocessor.pkl: {e}")
 
     try:
-        nn_model = keras.models.load_model('salary_nn_model.keras')
+        nn_model = keras.models.load_model('salary_nn_model.h5', compile=False)
     except Exception as e:
-        raise RuntimeError(f"Error loading salary_nn_model.keras: {e}")
+        raise RuntimeError(f"Error loading salary_nn_model.h5: {e}")
 
     try:
         with open('feature_info.json', 'r') as f:
