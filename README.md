@@ -82,22 +82,16 @@ The underlying regression model is built using TensorFlow/Keras with standard de
 ```
 ## ⚙️ Local Installation & Run
 
-```text
 1. **Clone the Repository:**
-   git clone https://github.com/M-Nafay-Ali/Salary-Forecasting-Keras-Explainability.git
+   ```bash
+   git clone [https://github.com/M-Nafay-Ali/Salary-Forecasting-Keras-Explainability.git](https://github.com/M-Nafay-Ali/Salary-Forecasting-Keras-Explainability.git)
    cd Salary-Forecasting-Keras-Explainability
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
+streamlit run app.py
+``
 
-2. **Create a Virtual Environment:**
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-3. **Install Dependencies:**
-   pip install -r requirements.txt
-
-4. **Launch the Streamlit App:**
-   streamlit run app.py
-```
----
 
 ## 🛠️ Tech Stack
 
