@@ -80,18 +80,6 @@ The underlying regression model is built using TensorFlow/Keras with standard de
 ├── shap_explanation.png             # SHAP local feature attribution chart asset
 └── README.md                        # Technical project documentation
 ```
-## ⚙️ Local Installation & Run
-
-1. **Clone the Repository:**
-   ```bash
-   git clone [https://github.com/M-Nafay-Ali/Salary-Forecasting-Keras-Explainability.git](https://github.com/M-Nafay-Ali/Salary-Forecasting-Keras-Explainability.git)
-   cd Salary-Forecasting-Keras-Explainability
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-pip install -r requirements.txt
-streamlit run app.py
-``
-
 
 ## 🛠️ Tech Stack
 
