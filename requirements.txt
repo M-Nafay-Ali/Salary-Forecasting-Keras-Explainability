@@ -1,0 +1,17 @@
+# Machine Learning & Deep Learning Core
+scikit-learn==1.6.1
+tensorflow>=2.15.0
+joblib>=1.3.2
+
+# Data Processing & Analysis
+pandas>=2.1.0
+numpy>=1.26.0
+
+# Model Explainability & Visualization
+shap>=0.44.0
+matplotlib>=3.8.0
+plotly>=5.18.0
+
+# Web Application
+streamlit>=1.30.0
+
