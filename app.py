@@ -14,62 +14,73 @@ st.set_page_config(
     page_title="Salary Intelligence AI",
     page_icon="💼",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed"
 )
 
-# 2. Advanced Custom CSS Styling (Glassmorphism & High-Tech Theme)
+# 2. Enhanced High-Contrast CSS Styling (Mobile & Mobile Browser Friendly)
 st.markdown("""
 <style>
+    /* Dark Theme Background */
     .stApp {
-        background: linear-gradient(rgba(10, 15, 30, 0.85), rgba(10, 15, 30, 0.92)), 
-                    url("https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop");
-        background-size: cover;
-        background-position: center;
-        background-attachment: fixed;
-        color: #E0E6ED;
+        background-color: #0F172A;
+        color: #F8FAFC;
     }
 
+    /* Sidebar High-Contrast Text Fix */
     section[data-testid="stSidebar"] {
-        background: rgba(16, 22, 42, 0.75) !important;
-        backdrop-filter: blur(12px);
-        border-right: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .glass-card {
-        background: rgba(23, 32, 54, 0.65);
-        backdrop-filter: blur(16px);
-        border-radius: 16px;
-        padding: 24px;
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-        margin-bottom: 20px;
-    }
-
-    .metric-value {
-        font-size: 2.8rem;
-        font-weight: 800;
-        background: linear-gradient(90deg, #00F2FE 0%, #4FACFE 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        margin-top: -10px;
-    }
-
-    .stButton>button {
-        background: linear-gradient(135deg, #00F2FE 0%, #4FACFE 100%);
-        color: #0A0F1E;
-        font-weight: 700;
-        border-radius: 10px;
-        border: none;
-        padding: 12px 28px;
-        transition: all 0.3s ease;
-        width: 100%;
-        box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
+        background-color: #1E293B !important;
     }
     
-    .stButton>button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(79, 172, 254, 0.6);
-        color: #0A0F1E;
+    section[data-testid="stSidebar"] label,
+    section[data-testid="stSidebar"] .stMarkdown,
+    section[data-testid="stSidebar"] p {
+        color: #F1F5F9 !important;
+        font-weight: 600 !important;
+    }
+
+    /* Card Containers */
+    .glass-card {
+        background-color: #1E293B;
+        border-radius: 12px;
+        padding: 20px;
+        border: 1px solid #334155;
+        margin-bottom: 16px;
+    }
+
+    /* Clear Headers */
+    .main-header {
+        font-size: 2.2rem;
+        font-weight: 800;
+        color: #FFFFFF !important;
+        text-align: center;
+        margin-bottom: 8px;
+    }
+
+    .sub-header {
+        font-size: 1rem;
+        color: #CBD5E1 !important;
+        text-align: center;
+        margin-bottom: 0px;
+    }
+
+    /* Metric Display */
+    .metric-value {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: #38BDF8;
+        margin-top: -5px;
+        margin-bottom: 10px;
+    }
+
+    /* Action Button */
+    .stButton>button {
+        background: linear-gradient(135deg, #0284C7 0%, #0369A1 100%);
+        color: #FFFFFF;
+        font-weight: 700;
+        border-radius: 8px;
+        border: none;
+        padding: 12px 20px;
+        width: 100%;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -96,7 +107,7 @@ def load_artifacts():
 
     try:
         with open('feature_info.json', 'r') as f:
-            meta = json.json_load(f) if hasattr(json, 'json_load') else json.load(f)
+            meta = json.load(f)
     except Exception as e:
         raise RuntimeError(f"Error loading feature_info.json: {e}")
 
@@ -115,27 +126,23 @@ except Exception as e:
     st.error(f"⚠️ Deployment Artifact Error: {e}")
     st.stop()
 
-# 5. Header Section
+# 5. High-Contrast Header Section
 st.markdown("""
 <div class="glass-card">
-    <h1 style='text-align: center; color: #FFFFFF; font-family: "Inter", sans-serif; margin-bottom: 5px;'>
-        💼 Salary Intelligence AI
-    </h1>
-    <p style='text-align: center; color: #94A3B8; font-size: 1.1rem;'>
-        Deep Learning Compensation Intelligence Engine Powered by TensorFlow & SHAP
-    </p>
+    <div class="main-header">💼 Salary Intelligence AI</div>
+    <div class="sub-header">Deep Learning Compensation Intelligence Engine Powered by TensorFlow & SHAP</div>
 </div>
 """, unsafe_allow_html=True)
 
-# 6. Sidebar Navigation / Feature Inputs
-st.sidebar.markdown("### 🎛️ Employee Profile")
+# 6. Sidebar Inputs with Clear Labels
+st.sidebar.markdown("<h2 style='color: #FFFFFF;'>🎛️ Employee Profile</h2>", unsafe_allow_html=True)
 
-input_gender = st.sidebar.selectbox("Gender", meta['unique_genders'])
-input_education = st.sidebar.selectbox("Education Level", meta['unique_education'])
-input_job = st.sidebar.selectbox("Job Title", meta['unique_job_titles'])
+input_gender = st.sidebar.selectbox("Select Gender", meta['unique_genders'])
+input_education = st.sidebar.selectbox("Select Education Level", meta['unique_education'])
+input_job = st.sidebar.selectbox("Select Job Title", meta['unique_job_titles'])
 
-input_age = st.sidebar.slider("Age", meta['min_age'], meta['max_age'], int(np.median([meta['min_age'], meta['max_age']])))
-input_experience = st.sidebar.slider("Years of Experience", float(meta['min_exp']), float(meta['max_exp']), 5.0, step=0.5)
+input_age = st.sidebar.slider("Age (Years)", meta['min_age'], meta['max_age'], int(np.median([meta['min_age'], meta['max_age']])))
+input_experience = st.sidebar.slider("Experience (Years)", float(meta['min_exp']), float(meta['max_exp']), 5.0, step=0.5)
 
 input_df = pd.DataFrame([{
     'Age': input_age,
@@ -145,17 +152,17 @@ input_df = pd.DataFrame([{
     'Years of Experience': input_experience
 }])
 
-# 7. Main Dashboard Layout
-col1, col2 = st.columns([1, 1.2])
+# 7. Dashboard Layout
+col1, col2 = st.columns([1, 1])
 
 with col1:
     st.markdown('<div class="glass-card">', unsafe_allow_html=True)
-    st.markdown("### 📊 Inputs Summary")
+    st.markdown("### 📊 Selected Input Features")
     st.dataframe(input_df, use_container_width=True, hide_index=True)
-    predict_btn = st.button("🚀 Predict Target Compensation")
+    predict_btn = st.button("🚀 Calculate Estimated Salary")
     st.markdown('</div>', unsafe_allow_html=True)
 
-# 8. Prediction & Explainability Logic
+# 8. Prediction & Responsive SHAP Visualization
 if predict_btn or 'prediction' in st.session_state:
     processed_input = preprocessor.transform(input_df)
     if hasattr(processed_input, "toarray"):
@@ -172,33 +179,32 @@ if predict_btn or 'prediction' in st.session_state:
         fig_gauge = go.Figure(go.Indicator(
             mode="gauge+number",
             value=predicted_salary,
-            number={'prefix': "$", 'valueformat': ",.0f", 'font': {'color': '#FFFFFF'}},
+            number={'prefix': "$", 'valueformat': ",.0f", 'font': {'color': '#FFFFFF', 'size': 20}},
             gauge={
                 'axis': {'range': [20000, 250000], 'tickcolor': "#94A3B8"},
-                'bar': {'color': "#00F2FE"},
-                'bgcolor': "rgba(0,0,0,0.2)",
-                'bordercolor': "rgba(255,255,255,0.1)",
+                'bar': {'color': "#38BDF8"},
+                'bgcolor': "rgba(0,0,0,0.3)",
                 'steps': [
-                    {'range': [20000, 80000], 'color': 'rgba(255, 255, 255, 0.05)'},
-                    {'range': [80000, 150000], 'color': 'rgba(255, 255, 255, 0.1)'},
-                    {'range': [150000, 250000], 'color': 'rgba(255, 255, 255, 0.15)'}
+                    {'range': [20000, 80000], 'color': '#334155'},
+                    {'range': [80000, 150000], 'color': '#475569'},
+                    {'range': [150000, 250000], 'color': '#64748B'}
                 ]
             }
         ))
         fig_gauge.update_layout(
-            height=200, 
-            margin=dict(l=10, r=10, t=10, b=10),
+            height=180, 
+            margin=dict(l=15, r=15, t=10, b=10),
             paper_bgcolor='rgba(0,0,0,0)',
             plot_bgcolor='rgba(0,0,0,0)'
         )
         st.plotly_chart(fig_gauge, use_container_width=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
-    # SHAP Attribution Section
+    # Expanded & Responsive SHAP Feature Plot
     st.markdown('<div class="glass-card">', unsafe_allow_html=True)
-    st.markdown("### 🔍 Local Feature Attribution (SHAP Explanation)")
+    st.markdown("### 🔍 Feature Importance (SHAP Breakdown)")
     
-    with st.spinner("Computing real-time SHAP feature contributions..."):
+    with st.spinner("Calculating feature contributions..."):
         bg_sample = np.zeros((10, processed_input.shape[1]))
         explainer = shap.DeepExplainer(nn_model, bg_sample)
         shap_vals = explainer.shap_values(processed_input, check_additivity=False)
@@ -211,10 +217,13 @@ if predict_btn or 'prediction' in st.session_state:
         if len(shap_matrix.shape) == 3:
             shap_matrix = shap_matrix.squeeze(-1)
 
+        # Truncate long feature names for readability on smaller screens
+        clean_names = [name[:25] + "..." if len(name) > 25 else name for name in meta['clean_feature_names']]
+
         shap_df = pd.DataFrame({
-            'Feature': meta['clean_feature_names'],
+            'Feature': clean_names,
             'SHAP Impact ($)': shap_matrix[0]
-        }).sort_values(by='SHAP Impact ($)', key=abs, ascending=False).head(8)
+        }).sort_values(by='SHAP Impact ($)', key=abs, ascending=False).head(6)
 
         fig_shap = px.bar(
             shap_df,
@@ -222,18 +231,19 @@ if predict_btn or 'prediction' in st.session_state:
             y='Feature',
             orientation='h',
             color='SHAP Impact ($)',
-            color_continuous_scale=['#FF4B4B', '#94A3B8', '#00F2FE'],
+            color_continuous_scale=['#EF4444', '#94A3B8', '#38BDF8'],
             text_auto=',.0f'
         )
         fig_shap.update_layout(
-            yaxis={'categoryorder': 'total ascending'},
+            yaxis={'categoryorder': 'total ascending', 'tickfont': {'size': 12, 'color': '#F8FAFC'}},
+            xaxis={'tickfont': {'color': '#F8FAFC'}},
             paper_bgcolor='rgba(0,0,0,0)',
             plot_bgcolor='rgba(0,0,0,0)',
-            font=dict(color='#E0E6ED'),
-            height=320,
+            font=dict(color='#F8FAFC'),
+            height=420,  # Increased height to un-cram labels
             coloraxis_showscale=False,
-            margin=dict(l=10, r=10, t=10, b=10)
+            margin=dict(l=10, r=20, t=10, b=10)
         )
         st.plotly_chart(fig_shap, use_container_width=True)
     st.markdown('</div>', unsafe_allow_html=True)
-            
+    
